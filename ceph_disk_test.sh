@@ -17,22 +17,28 @@ if [ -z "$6" ]; then
   exit 1
 fi
 
+# Make sure only root can run our script
+if [[ $EUID -ne 0 ]]; then
+    echo $(getDate) "Concurrent Object storage performance testing must be run as root or via sudo - aborting." | tee -a logs/$logdate-cluster-info.log
+    exit 1
+fi
+
 GNUPLOT=$(which gnuplot)
 if [ ! -x $GNUPLOT ]; then
-	echo You need gnuplot installed to generate graphs
-	exit 1
+    echo You need gnuplot installed to generate graphs
+    exit 1
 fi
 
 FIO=$(which fio)
 if [ ! -x $FIO ]; then
-	echo You need fio installed to run IO tests
-	exit 1
+    echo You need fio installed to run IO tests
+    exit 1
 fi
 
 function getTmpMount () {
-	# Generates a temporary mount point
-	tmpmount=$(mktemp -d)
-	echo $tmpmount
+    # Generates a temporary mount point
+    tmpmount=$(mktemp -d)
+    echo $tmpmount
 }
 
 function getDate() {
@@ -57,16 +63,16 @@ durationmultiplier=8
 totalduration=$(($duration * $durationmultiplier))
 
 function createTest () {
-	# Creates the fio test file using a here document
-	testmountpoint=$1
-	testsize=$2
-	testblocksize=$3
-	testduration=$4
-	testtype=$5
-	
-	if [ "$testtype" == "osd" ]; then
-	
-		cat <<EOF > ${tmplogs}/$logdate-osd-$size-$name.fio
+    # Creates the fio test file using a here document
+    testmountpoint=$1
+    testsize=$2
+    testblocksize=$3
+    testduration=$4
+    testtype=$5
+    
+    if [ "$testtype" == "osd" ]; then
+    
+        cat <<EOF > ${tmplogs}/$logdate-osd-$size-$name.fio
 [global]
 ioengine=libaio
 invalidate=1
@@ -111,8 +117,8 @@ write_lat_log=${tmplogs}/$logdate-rand-read-osd-$size-$name
 write_iops_log=${tmplogs}/$logdate-rand-read-osd-$size-$name
 write_iolog=${tmplogs}/$logdate-rand-read-osd-$size-$name
 EOF
-	elif [ "$testtype" == "journal" ]; then
-		cat <<EOF > ${tmplogs}/$logdate-journal-$size-$name.fio
+    elif [ "$testtype" == "journal" ]; then
+        cat <<EOF > ${tmplogs}/$logdate-journal-$size-$name.fio
 [global]
 ioengine=libaio
 invalidate=1
@@ -158,7 +164,7 @@ write_lat_log=${tmplogs}/$logdate-rand-read-journal-$size-$name
 write_iops_log=${tmplogs}/$logdate-rand-read-journal-$size-$name
 write_iolog=${tmplogs}/$logdate-rand-read-journal-$size-$name
 EOF
-	fi
+    fi
 }
 
 plot () {
@@ -167,7 +173,7 @@ plot () {
     #
     
     if [ -z "$TITLE" ]
-    then	
+    then    
         PLOT_TITLE=" set title \"$1\" font $DEFAULT_TITLE_FONT"
     else
         PLOT_TITLE=" set title \"$TITLE\\n\\n{/*0.6 "$1"}\" font $DEFAULT_TITLE_FONT"
@@ -192,7 +198,7 @@ plot () {
         fi
 
         DEPTH=$(echo $PT)
-	    PLOT_LINE=$PLOT_LINE"'$x' using (\$1/1000):(\$2/$SCALE) title \" $DEPTH\" with lines ls $i" 
+        PLOT_LINE=$PLOT_LINE"'$x' using (\$1/1000):(\$2/$SCALE) title \" $DEPTH\" with lines ls $i" 
         
     done
 
@@ -204,84 +210,84 @@ plot () {
 
 function fioGeneratePlots () {
 
-	TITLE="$1"
+    TITLE="$1"
 
-	# set resolution
-	if [ ! -z "$2" ] && [ ! -z "$3" ]
-	then
-		XRES="$2"
-		YRES="$3"
-	else
-		XRES=1920
-		YRES=1080
-	fi
-	
-	if [ -z "$SAMPLE_DURATION" ]
-	then
-	    SAMPLE_DURATION="*"
-	fi
-	
-	DEFAULT_GRID_LINE_TYPE=3
-	DEFAULT_LINE_WIDTH=2
-	DEFAULT_LINE_COLORS="
-	set object 1 rectangle from screen 0,0 to screen 1,1 fillcolor rgb\"#ffffff\" behind 
-	set style line 1 lc rgb \"#E41A1C\" lw $DEFAULT_LINE_WIDTH lt 1;
-	set style line 2 lc rgb \"#377EB8\" lw $DEFAULT_LINE_WIDTH lt 1;
-	set style line 3 lc rgb \"#4DAF4A\" lw $DEFAULT_LINE_WIDTH lt 1;
-	set style line 4 lc rgb \"#984EA3\" lw $DEFAULT_LINE_WIDTH lt 1;
-	set style line 5 lc rgb \"#FF7F00\" lw $DEFAULT_LINE_WIDTH lt 1;
-	set style line 6 lc rgb \"#DADA33\" lw $DEFAULT_LINE_WIDTH lt 1;
-	set style line 7 lc rgb \"#A65628\" lw $DEFAULT_LINE_WIDTH lt 1;
-	set style line 20 lc rgb \"#000000\" lt $DEFAULT_GRID_LINE_TYPE lw $DEFAULT_LINE_WIDTH;
-	"
-	
-	DEFAULT_TERMINAL="set terminal svg enhanced dashed size $XRES,$YRES dynamic"
-	DEFAULT_TITLE_FONT="\"Helvetica,28\""
-	DEFAULT_AXIS_FONT="\"Helvetica,14\""
-	DEFAULT_AXIS_LABEL_FONT="\"Helvetica,16\""
-	DEFAULT_XLABEL="set xlabel \"Time (sec)\" font $DEFAULT_AXIS_LABEL_FONT"
-	DEFAULT_XTIC="set xtics font $DEFAULT_AXIS_FONT"
-	DEFAULT_YTIC="set ytics font $DEFAULT_AXIS_FONT"
-	DEFAULT_MXTIC="set mxtics 0"
-	DEFAULT_MYTIC="set mytics 2"
-	DEFAULT_XRANGE="set xrange [0:$SAMPLE_DURATION]"
-	DEFAULT_YRANGE="set yrange [0:*]"
-	DEFAULT_GRID="set grid ls 20"
-	DEFAULT_KEY="set key outside bottom center ; set key box enhanced spacing 2.0 samplen 3 horizontal width 4 height 1.2 "
-	DEFAULT_SOURCE='set label 30 "Data source: http://www.example.com" font "Helvetica,14" tc rgb "#00000f" at screen 0.976,0.175 right'
-	DEFAULT_OPTS="$DEFAULT_LINE_COLORS ; $DEFAULT_GRID_LINE ; $DEFAULT_GRID ; $DEFAULT_GRID_MINOR ; $DEFAULT_XLABEL ; $DEFAULT_XRANGE ; $DEFAULT_YRANGE ; $DEFAULT_XTIC ;  $DEFAULT_YTIC ; $DEFAULT_MXTIC ; 	$DEFAULT_MYTIC ; $DEFAULT_KEY ; $DEFAULT_TERMINAL ; $DEFAULT_SOURCE"
-	
-	plot "I/O Latency" lat "Time (msec)" 1000
-	plot "I/O Operations Per Second" iops "IOPS" 1
-	plot "I/O Submission Latency" slat "Time (μsec)" 1
-	plot "I/O Completion Latency" clat "Time (msec)" 1000
-	plot "I/O Bandwidth" bw "Throughput (KB/s)" 1
+    # set resolution
+    if [ ! -z "$2" ] && [ ! -z "$3" ]
+    then
+        XRES="$2"
+        YRES="$3"
+    else
+        XRES=1920
+        YRES=1080
+    fi
+    
+    if [ -z "$SAMPLE_DURATION" ]
+    then
+        SAMPLE_DURATION="*"
+    fi
+    
+    DEFAULT_GRID_LINE_TYPE=3
+    DEFAULT_LINE_WIDTH=2
+    DEFAULT_LINE_COLORS="
+    set object 1 rectangle from screen 0,0 to screen 1,1 fillcolor rgb\"#ffffff\" behind 
+    set style line 1 lc rgb \"#E41A1C\" lw $DEFAULT_LINE_WIDTH lt 1;
+    set style line 2 lc rgb \"#377EB8\" lw $DEFAULT_LINE_WIDTH lt 1;
+    set style line 3 lc rgb \"#4DAF4A\" lw $DEFAULT_LINE_WIDTH lt 1;
+    set style line 4 lc rgb \"#984EA3\" lw $DEFAULT_LINE_WIDTH lt 1;
+    set style line 5 lc rgb \"#FF7F00\" lw $DEFAULT_LINE_WIDTH lt 1;
+    set style line 6 lc rgb \"#DADA33\" lw $DEFAULT_LINE_WIDTH lt 1;
+    set style line 7 lc rgb \"#A65628\" lw $DEFAULT_LINE_WIDTH lt 1;
+    set style line 20 lc rgb \"#000000\" lt $DEFAULT_GRID_LINE_TYPE lw $DEFAULT_LINE_WIDTH;
+    "
+    
+    DEFAULT_TERMINAL="set terminal svg enhanced dashed size $XRES,$YRES dynamic"
+    DEFAULT_TITLE_FONT="\"Helvetica,28\""
+    DEFAULT_AXIS_FONT="\"Helvetica,14\""
+    DEFAULT_AXIS_LABEL_FONT="\"Helvetica,16\""
+    DEFAULT_XLABEL="set xlabel \"Time (sec)\" font $DEFAULT_AXIS_LABEL_FONT"
+    DEFAULT_XTIC="set xtics font $DEFAULT_AXIS_FONT"
+    DEFAULT_YTIC="set ytics font $DEFAULT_AXIS_FONT"
+    DEFAULT_MXTIC="set mxtics 0"
+    DEFAULT_MYTIC="set mytics 2"
+    DEFAULT_XRANGE="set xrange [0:$SAMPLE_DURATION]"
+    DEFAULT_YRANGE="set yrange [0:*]"
+    DEFAULT_GRID="set grid ls 20"
+    DEFAULT_KEY="set key outside bottom center ; set key box enhanced spacing 2.0 samplen 3 horizontal width 4 height 1.2 "
+    DEFAULT_SOURCE='set label 30 "Data source: http://www.example.com" font "Helvetica,14" tc rgb "#00000f" at screen 0.976,0.175 right'
+    DEFAULT_OPTS="$DEFAULT_LINE_COLORS ; $DEFAULT_GRID_LINE ; $DEFAULT_GRID ; $DEFAULT_GRID_MINOR ; $DEFAULT_XLABEL ; $DEFAULT_XRANGE ; $DEFAULT_YRANGE ; $DEFAULT_XTIC ;  $DEFAULT_YTIC ; $DEFAULT_MXTIC ;     $DEFAULT_MYTIC ; $DEFAULT_KEY ; $DEFAULT_TERMINAL ; $DEFAULT_SOURCE"
+    
+    plot "I/O Latency" lat "Time (msec)" 1000
+    plot "I/O Operations Per Second" iops "IOPS" 1
+    plot "I/O Submission Latency" slat "Time (μsec)" 1
+    plot "I/O Completion Latency" clat "Time (msec)" 1000
+    plot "I/O Bandwidth" bw "Throughput (KB/s)" 1
 }
 
 function generatePlots () {
         cd $tmplogs
-	# Generate graphs from test data
-	if [ "$testtype" == "osd" ]; then
-		fioGeneratePlots $logdate-osd-$name
-	elif [ "$testtype" == "journal" ]; then
-		fioGeneratePlots $logdate-journal-$name
-	fi
-	cd $ourpwd
+    # Generate graphs from test data
+    if [ "$testtype" == "osd" ]; then
+        fioGeneratePlots $logdate-osd-$name
+    elif [ "$testtype" == "journal" ]; then
+        fioGeneratePlots $logdate-journal-$name
+    fi
+    cd $ourpwd
 }
 
 function runTest () {
-	# Run the fio test
-	if [ "$testtype" == "osd" ]; then
-		fio ${tmplogs}/$logdate-osd-$size-$name.fio | tee ${tmplogs}/$logdate-osd-$size-$name.log
-	elif [ "$testtype" == "journal" ]; then
-		fio ${tmplogs}/$logdate-journal-$size-$name.fio | tee ${tmplogs}/$logdate-osd-$size-$name.log
-	fi
+    # Run the fio test
+    if [ "$testtype" == "osd" ]; then
+        fio ${tmplogs}/$logdate-osd-$size-$name.fio | tee ${tmplogs}/$logdate-osd-$size-$name.log
+    elif [ "$testtype" == "journal" ]; then
+        fio ${tmplogs}/$logdate-journal-$size-$name.fio | tee ${tmplogs}/$logdate-osd-$size-$name.log
+    fi
 }
 
 function wipeDrive() {
-	# Wipe the drive and partition table
-	umount $drive >/dev/null 2>&1
-	wipefs -a $drive
+    # Wipe the drive and partition table
+    umount $drive >/dev/null 2>&1
+    wipefs -a $drive
     cat <<EOF | sudo gdisk $drive
 o
 Y
@@ -296,55 +302,55 @@ EOF
 }
 
 function filesystemCreate () {
-	# Create XFS filesystem
-	mkfs.xfs -f -i size=2048 -n size=8k ${drive}1
+    # Create XFS filesystem
+    mkfs.xfs -f -i size=2048 -n size=8k ${drive}1
 }
 
 function mountDrive () {
-	# Mount drive with ceph parameters
-	mount -o noatime,nodiratime,attr2,logbufs=8,logbsize=256k,inode64,allocsize=4m ${drive}1 $tmpmountpoint
+    # Mount drive with ceph parameters
+    mount -o noatime,nodiratime,attr2,logbufs=8,logbsize=256k,inode64,allocsize=4m ${drive}1 $tmpmountpoint
 }
 
 function umountDrive () {
-	# Unmount drive
-	umount $tmpmountpoint
-	# Clean up the mount point
+    # Unmount drive
+    umount $tmpmountpoint
+    # Clean up the mount point
         rm -R -f ${tmpmountpoint}
 }
 
 function makeArchive () {
-	cd ${tmplogs}
-	tar -cf - * | xz -9 -c - > ${ourpwd}/${logdate}-${testtype}-${name}.tar.xz
-	# Clean out the logs directory
-	cd ${ourpwd}
-	rm -R -f ${tmplogs}
+    cd ${tmplogs}
+    tar -cf - * | xz -9 -c - > ${ourpwd}/${logdate}-${testtype}-${size}-${name}.tar.xz
+    # Clean out the logs directory
+    cd ${ourpwd}
+    rm -R -f ${tmplogs}
 }
 
 function dropCaches () {
-	echo 3 > /proc/sys/vm/drop_caches
-	sync
+    echo 3 > /proc/sys/vm/drop_caches
+    sync
 }
-		
+        
 function main () {
-	# The main function of the script
-	echo $(getDate) "Creating Test Files at ${tmplog}"
-	createTest $tmpmountpoint $size $blocksize $duration $type
-	echo $(getDate) "Formatting Drive $drive"
-	wipeDrive
-	filesystemCreate
-	echo $(getDate) "Mounting Drive $drive at $tmpmountpoint"
-	mountDrive
-	echo $(getDate) "Dropping OS Caches / Unused inodes, dentries"
-	dropCaches
-	echo $(getDate) "Running Tests for $totalduration seconds..."
-	runTest
-	echo $(getDate) "Unmounting Drive $drive from $tmpmountpoint"
-	umountDrive
-	echo $(getDate) 'Graphing Results'
-	generatePlots
-	echo $(getDate) 'Compressing Results'
-	makeArchive
-	echo $(getDate) "Test results at ${ourpwd}/${logdate}-${testtype}-${name}.tar.xz"
+    # The main function of the script
+    echo $(getDate) "Creating Test Files at ${tmplog}"
+    createTest $tmpmountpoint $size $blocksize $duration $type
+    echo $(getDate) "Formatting Drive $drive"
+    wipeDrive
+    filesystemCreate
+    echo $(getDate) "Mounting Drive $drive at $tmpmountpoint"
+    mountDrive
+    echo $(getDate) "Dropping OS Caches / Unused inodes, dentries"
+    dropCaches
+    echo $(getDate) "Running Tests for $totalduration seconds..."
+    runTest
+    echo $(getDate) "Unmounting Drive $drive from $tmpmountpoint"
+    umountDrive
+    echo $(getDate) 'Graphing Results'
+    generatePlots
+    echo $(getDate) 'Compressing Results'
+    makeArchive
+    echo $(getDate) "Test results at ${ourpwd}/${logdate}-${testtype}-${size}-${name}.tar.xz"
 }
 
 main
