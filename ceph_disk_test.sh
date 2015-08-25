@@ -320,7 +320,7 @@ function umountDrive () {
 
 function makeArchive () {
     cd ${tmplogs}
-    tar -cf - * | xz -9 -c - > ${ourpwd}/${logdate}-${testtype}-${size}-${name}.tar.xz
+    tar -cf - * | xz -9 -c - > ${ourpwd}/${logdate}-${testtype}-${blocksize}-${name}.tar.xz
     # Clean out the logs directory
     cd ${ourpwd}
     rm -R -f ${tmplogs}
@@ -350,7 +350,7 @@ function main () {
     generatePlots
     echo $(getDate) 'Compressing Results'
     makeArchive
-    echo $(getDate) "Test results at ${ourpwd}/${logdate}-${testtype}-${size}-${name}.tar.xz"
+    echo $(getDate) "Test results at ${ourpwd}/${logdate}-${testtype}-${blocksize}-${name}.tar.xz"
 }
 
 main
