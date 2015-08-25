@@ -72,7 +72,7 @@ function createTest () {
     
     if [ "$testtype" == "osd" ]; then
     
-        cat <<EOF > ${tmplogs}/$logdate-osd-$size-$name.fio
+        cat <<EOF > ${tmplogs}/$logdate-osd-$blocksize-$name.fio
 [global]
 ioengine=libaio
 invalidate=1
@@ -88,37 +88,37 @@ filename=${testmountpoint}/test.file
 [seq-write]
 stonewall
 rw=write
-write_bw_log=${tmplogs}/$logdate-seq-write-osd-$size-$name
-write_lat_log=${tmplogs}/$logdate-seq-write-osd-$size-$name
-write_iops_log=${tmplogs}/$logdate-seq-write-osd-$size-$name
-write_iolog=${tmplogs}/$logdate-seq-write-osd-$size-$name
+write_bw_log=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
  
 [rand-write]
 stonewall
 rw=randwrite
-write_bw_log=${tmplogs}/$logdate-rand-write-osd-$size-$name
-write_lat_log=${tmplogs}/$logdate-rand-write-osd-$size-$name
-write_iops_log=${tmplogs}/$logdate-rand-write-osd-$size-$name
-write_iolog=${tmplogs}/$logdate-rand-write-osd-$size-$name
+write_bw_log=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
  
 [seq-read]
 stonewall
 rw=read
-write_bw_log=${tmplogs}/$logdate-seq-read-osd-$size-$name
-write_lat_log=${tmplogs}/$logdate-seq-read-osd-$size-$name
-write_iops_log=${tmplogs}/$logdate-seq-read-osd-$size-$name
-write_iolog=${tmplogs}/$logdate-seq-read-osd-$size-$name
+write_bw_log=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
  
 [rand-read]
 stonewall
 rw=randread
-write_bw_log=${tmplogs}/$logdate-rand-read-osd-$size-$name
-write_lat_log=${tmplogs}/$logdate-rand-read-osd-$size-$name
-write_iops_log=${tmplogs}/$logdate-rand-read-osd-$size-$name
-write_iolog=${tmplogs}/$logdate-rand-read-osd-$size-$name
+write_bw_log=${tmplogs}/$logdate-rand-read-osd-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-rand-read-osd-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-rand-read-osd-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-rand-read-osd-$blocksize-$name
 EOF
     elif [ "$testtype" == "journal" ]; then
-        cat <<EOF > ${tmplogs}/$logdate-journal-$size-$name.fio
+        cat <<EOF > ${tmplogs}/$logdate-journal-$blocksize-$name.fio
 [global]
 ioengine=libaio
 invalidate=1
@@ -135,34 +135,34 @@ filename=${testmountpoint}/test.file
 [seq-write]
 stonewall
 rw=write
-write_bw_log=${tmplogs}/$logdate-seq-write-journal-$size-$name
-write_lat_log=${tmplogs}/$logdate-seq-write-journal-$size-$name
-write_iops_log=${tmplogs}/$logdate-seq-write-journal-$size-$name
-write_iolog=${tmplogs}/$logdate-seq-write-journal-$size-$name
+write_bw_log=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
  
 [rand-write]
 stonewall
 rw=randwrite
-write_bw_log=${tmplogs}/$logdate-rand-write-journal-$size-$name
-write_lat_log=${tmplogs}/$logdate-rand-write-journal-$size-$name
-write_iops_log=${tmplogs}/$logdate-rand-write-journal-$size-$name
-write_iolog=${tmplogs}/$logdate-rand-write-journal-$size-$name
+write_bw_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
  
 [seq-read]
 stonewall
 rw=read
-write_bw_log=${tmplogs}/$logdate-seq-read-journal-$size-$name
-write_lat_log=${tmplogs}/$logdate-seq-read-journal-$size-$name
-write_iops_log=${tmplogs}/$logdate-seq-read-journal-$size-$name
-write_iolog=${tmplogs}/$logdate-seq-read-journal-$size-$name
+write_bw_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
  
 [rand-read]
 stonewall
 rw=randread
-write_bw_log=${tmplogs}/$logdate-rand-read-journal-$size-$name
-write_lat_log=${tmplogs}/$logdate-rand-read-journal-$size-$name
-write_iops_log=${tmplogs}/$logdate-rand-read-journal-$size-$name
-write_iolog=${tmplogs}/$logdate-rand-read-journal-$size-$name
+write_bw_log=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
+write_lat_log=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
+write_iops_log=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
+write_iolog=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
 EOF
     fi
 }
@@ -268,9 +268,9 @@ function generatePlots () {
         cd $tmplogs
     # Generate graphs from test data
     if [ "$testtype" == "osd" ]; then
-        fioGeneratePlots $logdate-osd-$name
+        fioGeneratePlots $logdate-osd-$blocksize-$name
     elif [ "$testtype" == "journal" ]; then
-        fioGeneratePlots $logdate-journal-$name
+        fioGeneratePlots $logdate-journal-$blocksize-$name
     fi
     cd $ourpwd
 }
@@ -278,9 +278,9 @@ function generatePlots () {
 function runTest () {
     # Run the fio test
     if [ "$testtype" == "osd" ]; then
-        fio ${tmplogs}/$logdate-osd-$size-$name.fio | tee ${tmplogs}/$logdate-osd-$size-$name.log
+        fio ${tmplogs}/$logdate-osd-$blocksize-$name.fio | tee ${tmplogs}/$logdate-osd-$blocksize-$name.log
     elif [ "$testtype" == "journal" ]; then
-        fio ${tmplogs}/$logdate-journal-$size-$name.fio | tee ${tmplogs}/$logdate-osd-$size-$name.log
+        fio ${tmplogs}/$logdate-journal-$blocksize-$name.fio | tee ${tmplogs}/$logdate-osd-$blocksize-$name.log
     fi
 }
 
