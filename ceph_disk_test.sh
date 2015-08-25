@@ -312,6 +312,7 @@ function mountDrive () {
 }
 
 function umountDrive () {
+    sync
     # Unmount drive
     umount $tmpmountpoint
     # Clean up the mount point
