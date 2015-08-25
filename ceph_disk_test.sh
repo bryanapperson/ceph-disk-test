@@ -17,6 +17,17 @@ if [ -z "$6" ]; then
     exit 1
 fi
 
+function getTmpMount () {
+    # Generates a temporary mount point
+    tmpmount=$(mktemp -d)
+    echo $tmpmount
+}
+
+function getDate() {
+    # Get the date and echo it
+    echo $(date +%F\ %H:%M:%S) $(hostname -s)
+}
+
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then
     echo $(getDate) "ceph-disk-test.sh must be run as root or via sudo - aborting." | tee -a logs/$logdate-cluster-info.log
@@ -34,17 +45,6 @@ if [ ! -x $FIO ]; then
     echo You need fio installed to run IO tests
     exit 1
 fi
-
-function getTmpMount () {
-    # Generates a temporary mount point
-    tmpmount=$(mktemp -d)
-    echo $tmpmount
-}
-
-function getDate() {
-    # Get the date and echo it
-    echo $(date +%F\ %H:%M:%S) $(hostname -s)
-}
 
 echo $(getDate) 'Creating Mount Points'
 
