@@ -248,7 +248,7 @@ function fioGeneratePlots () {
 	DEFAULT_YRANGE="set yrange [0:*]"
 	DEFAULT_GRID="set grid ls 20"
 	DEFAULT_KEY="set key outside bottom center ; set key box enhanced spacing 2.0 samplen 3 horizontal width 4 height 1.2 "
-	DEFAULT_SOURCE="set label 30 \"Data source: http://www.example.com\" font $DEFAULT_AXIS_FONT tc rgb \"#00000f\" at screen 0.976,0.175 right"
+	DEFAULT_SOURCE='set label 30 "Data source: http://www.example.com" font "Helvetica,14" tc rgb "#00000f" at screen 0.976,0.175 right'
 	DEFAULT_OPTS="$DEFAULT_LINE_COLORS ; $DEFAULT_GRID_LINE ; $DEFAULT_GRID ; $DEFAULT_GRID_MINOR ; $DEFAULT_XLABEL ; $DEFAULT_XRANGE ; $DEFAULT_YRANGE ; $DEFAULT_XTIC ;  $DEFAULT_YTIC ; $DEFAULT_MXTIC ; 	$DEFAULT_MYTIC ; $DEFAULT_KEY ; $DEFAULT_TERMINAL ; $DEFAULT_SOURCE"
 	
 	plot "I/O Latency" lat "Time (msec)" 1000
@@ -348,4 +348,3 @@ function main () {
 }
 
 main
-		
