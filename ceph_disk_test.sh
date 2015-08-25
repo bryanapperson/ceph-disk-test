@@ -147,22 +147,7 @@ write_bw_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
 write_lat_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
 write_iops_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
 write_iolog=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
- 
-[seq-read]
-stonewall
-rw=read
-write_bw_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
-write_lat_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
-write_iops_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
-write_iolog=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
- 
-[rand-read]
-stonewall
-rw=randread
-write_bw_log=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
-write_lat_log=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
-write_iops_log=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
-write_iolog=${tmplogs}/$logdate-rand-read-journal-$blocksize-$name
+;Journals are write only
 EOF
     fi
 }
