@@ -19,7 +19,7 @@ fi
 
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then
-    echo $(getDate) "Concurrent Object storage performance testing must be run as root or via sudo - aborting." | tee -a logs/$logdate-cluster-info.log
+    echo $(getDate) "ceph-disk-test.sh must be run as root or via sudo - aborting." | tee -a logs/$logdate-cluster-info.log
     exit 1
 fi
 
