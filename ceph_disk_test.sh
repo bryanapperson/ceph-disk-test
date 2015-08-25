@@ -9,12 +9,12 @@
 #
 
 if [ -z "$6" ]; then
-  echo 'Usage:  sudo ceph_disk_test.sh <device name> <data set size> <block size> <test duration in seconds> <type: osd or journal> <test-name>'
-  echo
-  echo "Example:"
-  echo '        sudo ceph_disk_test.sh /dev/sdn 10240m 4m 300 journal intel-dc3700'
-  echo
-  exit 1
+    echo 'Usage:  sudo ceph_disk_test.sh <device name> <data set size> <block size> <test duration in seconds> <type: osd or journal> <test-name>'
+    echo
+    echo "Example:"
+    echo '        sudo ceph_disk_test.sh /dev/sdn 10240m 4m 300 journal intel-dc3700'
+    echo
+    exit 1
 fi
 
 # Make sure only root can run our script
@@ -42,8 +42,8 @@ function getTmpMount () {
 }
 
 function getDate() {
-  # Get the date and echo it
-  echo $(date +%F\ %H:%M:%S) $(hostname -s)
+    # Get the date and echo it
+    echo $(date +%F\ %H:%M:%S) $(hostname -s)
 }
 
 echo $(getDate) 'Creating Mount Points'
@@ -315,7 +315,7 @@ function umountDrive () {
     # Unmount drive
     umount $tmpmountpoint
     # Clean up the mount point
-        rm -R -f ${tmpmountpoint}
+    rm -R -f ${tmpmountpoint}
 }
 
 function makeArchive () {
