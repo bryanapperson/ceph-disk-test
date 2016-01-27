@@ -25,12 +25,12 @@ function getTmpMount () {
 
 function getDate() {
     # Get the date and echo it
-    echo $(date +%F\ %H:%M:%S) $(hostname -s)
+    echo "$(date +%F\ %H:%M:%S) $(hostname -s)"
 }
 
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then
-    echo $(getDate) "ceph-disk-test.sh must be run as root or via sudo - aborting." | tee -a logs/$logdate-cluster-info.log
+    echo "$(getDate) ceph-disk-test.sh must be run as root or via sudo - aborting." | tee -a logs/$logdate-cluster-info.log
     exit 1
 fi
 
@@ -46,7 +46,7 @@ if [ ! -x $FIO ]; then
     exit 1
 fi
 
-echo $(getDate) 'Creating Mount Points'
+echo "$(getDate) Creating Mount Points"
 
 # Set the global variables from user input and create mount points
 tmpmountpoint=$(getTmpMount)
@@ -69,9 +69,9 @@ function createTest () {
     testblocksize=$3
     testduration=$4
     testtype=$5
-    
+
     if [ "$testtype" == "osd" ]; then
-    
+
         cat <<EOF > ${tmplogs}/$logdate-osd-$blocksize-$name.fio
 [global]
 ioengine=libaio
@@ -84,7 +84,7 @@ direct=0
 bs=${testblocksize}
 size=${testsize}
 filename=${testmountpoint}/test.file
- 
+
 [seq-write]
 stonewall
 rw=write
@@ -92,7 +92,7 @@ write_bw_log=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
 write_lat_log=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
 write_iops_log=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
 write_iolog=${tmplogs}/$logdate-seq-write-osd-$blocksize-$name
- 
+
 [rand-write]
 stonewall
 rw=randwrite
@@ -100,7 +100,7 @@ write_bw_log=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
 write_lat_log=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
 write_iops_log=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
 write_iolog=${tmplogs}/$logdate-rand-write-osd-$blocksize-$name
- 
+
 [seq-read]
 stonewall
 rw=read
@@ -108,7 +108,7 @@ write_bw_log=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
 write_lat_log=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
 write_iops_log=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
 write_iolog=${tmplogs}/$logdate-seq-read-osd-$blocksize-$name
- 
+
 [rand-read]
 stonewall
 rw=randread
@@ -131,7 +131,7 @@ sync=1
 bs=${testblocksize}
 size=${testsize}
 filename=${testmountpoint}/test.file
- 
+
 [seq-write]
 stonewall
 rw=write
@@ -139,7 +139,7 @@ write_bw_log=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
 write_lat_log=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
 write_iops_log=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
 write_iolog=${tmplogs}/$logdate-seq-write-journal-$blocksize-$name
- 
+
 [rand-write]
 stonewall
 rw=randwrite
@@ -147,7 +147,7 @@ write_bw_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
 write_lat_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
 write_iops_log=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
 write_iolog=${tmplogs}/$logdate-rand-write-journal-$blocksize-$name
- 
+
 [seq-read]
 stonewall
 rw=read
@@ -155,7 +155,7 @@ write_bw_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
 write_lat_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
 write_iops_log=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
 write_iolog=${tmplogs}/$logdate-seq-read-journal-$blocksize-$name
- 
+
 [rand-read]
 stonewall
 rw=randread
@@ -171,12 +171,12 @@ plot () {
     #
     # plot <sub title> <file name tag> <y axis label> <y axis scale>
     #
-    
+
     if [ -z "$TITLE" ]
-    then    
+    then
         PLOT_TITLE=" set title \"$1\" font $DEFAULT_TITLE_FONT"
     else
-        PLOT_TITLE=" set title \"$TITLE\\n\\n{/*0.6 "$1"}\" font $DEFAULT_TITLE_FONT"
+        PLOT_TITLE=" set title \"$TITLE\\n\\n{/*0.6 $1}\" font $DEFAULT_TITLE_FONT"
     fi
     FILETYPE="$2"
     YAXIS="set ylabel \"$3\" font $DEFAULT_AXIS_LABEL_FONT"
@@ -187,7 +187,7 @@ plot () {
     echo "yaxis: $YAXIS"
 
     i=0
-    
+
     for x in *_"$FILETYPE".*.log
     do
         i=$((i+1))
@@ -198,8 +198,8 @@ plot () {
         fi
 
         DEPTH=$(echo $PT)
-        PLOT_LINE=$PLOT_LINE"'$x' using (\$1/1000):(\$2/$SCALE) title \" $DEPTH\" with lines ls $i" 
-        
+        PLOT_LINE=$PLOT_LINE"'$x' using (\$1/1000):(\$2/$SCALE) title \" $DEPTH\" with lines ls $i"
+
     done
 
     OUTPUT="set output \"$TITLE-$FILETYPE.svg\" "
@@ -221,16 +221,16 @@ function fioGeneratePlots () {
         XRES=1920
         YRES=1080
     fi
-    
+
     if [ -z "$SAMPLE_DURATION" ]
     then
         SAMPLE_DURATION="*"
     fi
-    
+
     DEFAULT_GRID_LINE_TYPE=3
     DEFAULT_LINE_WIDTH=2
     DEFAULT_LINE_COLORS="
-    set object 1 rectangle from screen 0,0 to screen 1,1 fillcolor rgb\"#ffffff\" behind 
+    set object 1 rectangle from screen 0,0 to screen 1,1 fillcolor rgb\"#ffffff\" behind
     set style line 1 lc rgb \"#E41A1C\" lw $DEFAULT_LINE_WIDTH lt 1;
     set style line 2 lc rgb \"#377EB8\" lw $DEFAULT_LINE_WIDTH lt 1;
     set style line 3 lc rgb \"#4DAF4A\" lw $DEFAULT_LINE_WIDTH lt 1;
@@ -240,7 +240,7 @@ function fioGeneratePlots () {
     set style line 7 lc rgb \"#A65628\" lw $DEFAULT_LINE_WIDTH lt 1;
     set style line 20 lc rgb \"#000000\" lt $DEFAULT_GRID_LINE_TYPE lw $DEFAULT_LINE_WIDTH;
     "
-    
+
     DEFAULT_TERMINAL="set terminal svg enhanced dashed size $XRES,$YRES dynamic"
     DEFAULT_TITLE_FONT="\"Helvetica,28\""
     DEFAULT_AXIS_FONT="\"Helvetica,14\""
@@ -256,7 +256,7 @@ function fioGeneratePlots () {
     DEFAULT_KEY="set key outside bottom center ; set key box enhanced spacing 2.0 samplen 3 horizontal width 4 height 1.2 "
     DEFAULT_SOURCE='set label 30 "Data source: http://www.bryanapperson.com" font "Helvetica,14" tc rgb "#00000f" at screen 0.976,0.175 right'
     DEFAULT_OPTS="$DEFAULT_LINE_COLORS ; $DEFAULT_GRID_LINE ; $DEFAULT_GRID ; $DEFAULT_GRID_MINOR ; $DEFAULT_XLABEL ; $DEFAULT_XRANGE ; $DEFAULT_YRANGE ; $DEFAULT_XTIC ;  $DEFAULT_YTIC ; $DEFAULT_MXTIC ;     $DEFAULT_MYTIC ; $DEFAULT_KEY ; $DEFAULT_TERMINAL ; $DEFAULT_SOURCE"
-    
+
     plot "I/O Latency" lat "Time (msec)" 1000
     plot "I/O Operations Per Second" iops "IOPS" 1
     plot "I/O Submission Latency" slat "Time (μsec)" 1
@@ -331,27 +331,27 @@ function dropCaches () {
     echo 3 > /proc/sys/vm/drop_caches
     sync
 }
-        
+
 function main () {
     # The main function of the script
-    echo $(getDate) "Creating Test Files at ${tmplog}"
+    echo "$(getDate) Creating Test Files at ${tmplogs}"
     createTest $tmpmountpoint $size $blocksize $duration $type
-    echo $(getDate) "Formatting Drive $drive"
+    echo "$(getDate) Formatting Drive $drive"
     wipeDrive
     filesystemCreate
-    echo $(getDate) "Mounting Drive $drive at $tmpmountpoint"
+    echo "$(getDate) Mounting Drive $drive at $tmpmountpoint"
     mountDrive
-    echo $(getDate) "Dropping OS Caches / Unused inodes, dentries"
+    echo "$(getDate) Dropping OS Caches / Unused inodes, dentries"
     dropCaches
-    echo $(getDate) "Running Tests for $totalduration seconds..."
+    echo "$(getDate) Running Tests for $totalduration seconds..."
     runTest
-    echo $(getDate) "Unmounting Drive $drive from $tmpmountpoint"
+    echo "$(getDate) Unmounting Drive $drive from $tmpmountpoint"
     umountDrive
-    echo $(getDate) 'Graphing Results'
+    echo "$(getDate) Graphing Results:"
     generatePlots
-    echo $(getDate) 'Compressing Results'
+    echo "$(getDate) Compressing Results"
     makeArchive
-    echo $(getDate) "Test results at ${ourpwd}/${logdate}-${testtype}-${blocksize}-${name}.tar.xz"
+    echo "$(getDate) Test results at ${ourpwd}/${logdate}-${testtype}-${blocksize}-${name}.tar.xz"
 }
 
 main
